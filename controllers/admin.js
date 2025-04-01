@@ -14,14 +14,8 @@ exports.postAddProduct = (req, res, next) => {
     const description = req.body.description;
     const price = req.body.price;
     // as we have now a user with 2 realtios to product we need to use the alias mehtod
-    
-    req.user.createCreatedProduct({
-      title: title,
-      imageUrl: imageUrl,
-      description: description,
-      price: price,
-      createdById: req.user.id
-    })
+    const product = new Product(title, imageUrl, description, price);
+    product.save()
       .then((result) => {
         console.log('Created Product');
         console.log(result);
@@ -32,7 +26,7 @@ exports.postAddProduct = (req, res, next) => {
   exports.getEditProducts = (req, res, next) => {
     const editMode = req.query.edit;
     const prodId = req.params.productId;
-    Product.findByPk(prodId)
+    Product.findById(prodId)
       .then((product) => {
         if (!product) {
           // better to move to error page - but for now we will redirect
@@ -59,16 +53,15 @@ exports.postAddProduct = (req, res, next) => {
     const updatedDescription = req.body.description;
     const updatedPrice = req.body.price;
     const updatedProdId = req.body.productId;
-    Product.findByPk(updatedProdId).then((product) => {
-      product.title = updatedTitle;
-      product.imageUrl = updatedImageUrl;
-      product.description = updatedDescription;
-      product.price = updatedPrice;
-      product.updatedById = req.user.id;
-      return product.save();
-    })
-    .then(result => {
-      // this is the updated product that was returned before
+    const product = new Product(
+      updatedTitle, 
+      updatedImageUrl, 
+      updatedDescription, 
+      updatedPrice, 
+      updatedProdId);
+    product.save()
+    .then((result) => {
+      console.log('Updated Product');
       console.log(result);
       res.redirect('/admin/products');
     })
@@ -78,32 +71,20 @@ exports.postAddProduct = (req, res, next) => {
   exports.postDeleteProducts = (req, res, next) => {
     const prodIdToDelete = req.body.productId;
     console.log(prodIdToDelete);
-    // in seqlize we can do Product.destroy({where: {id: prodIdToDelete}});, insead delete by id with sql to delete
-    // Product.deleteById(prodIdToDelete).then(() => {
-    //   console.log('deleted');
-    //   res.redirect('/admin/products');
-    // }).catch(err => console.log(err));
-    Product.destroy({where: {id: prodIdToDelete}})
+    
+    Product.deleteById(prodIdToDelete)
       .then(() => {
         console.log('deleted');
         res.redirect('/admin/products');
       })
       .catch(err => console.log(err));
-    // // another approch will be to fid then product and then on the next line delete it
-    // Product.findByPk(prodIdToDelete).then((product) => {
-    //   return product.destroy();
-    // })
-    // .then(result => {
-    //   console.log("Destroyed Product");
-    //   res.redirect('/admin/products');
-    // })
-    // .catch(err => console.log(err));
+    
   };
   
 exports.getProducts = (req, res, next) => {
 // need to render the template using the view engine
 // we will pass to the template the products in js object
-Product.findAll()
+Product.fetchAll()
   .then(products => {
     res.render('admin/products', {
         prods: products, 
