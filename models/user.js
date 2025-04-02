@@ -1,3 +1,5 @@
+const getDb = require('../util/database').getDb;
+const mongodb = require('mongodb');
 class User {
     constructor(name, email) {
         this.name = name;
@@ -13,12 +15,12 @@ class User {
     }
 
     static findById(id) {
+        console.log("calling to User. findById()");
+        console.log(id);
         const db = getDb();
         return db
             .collection('users')
             .findOne({ _id: mongodb.ObjectId.createFromHexString(id) })
-            .then((user) => user)
-            .catch((err) => console.log(err));
     }
 
 }
