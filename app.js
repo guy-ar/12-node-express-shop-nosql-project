@@ -25,7 +25,7 @@ app.use((req, res, next) => {
             console.log('logged User fetched');
             console.log(user);
             
-            req.user = user;
+            req.user = new User(user.name, user.email, user.cart, user._id); 
             console.log(req.user);
             
             next();
