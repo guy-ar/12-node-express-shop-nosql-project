@@ -1,7 +1,7 @@
 const path = require('path');
 
 const express = require('express');
-const mongoConnect = require('./util/database').mongoConnect;
+const mongoose = require('mongoose');
 
 const app = express();
 
@@ -35,6 +35,9 @@ app.use((req, res, next) => {
 app.use('/admin', adminRoutes)
 app.use(shopRoutes)
 
-mongoConnect(() => {
+mongoose.connect('mongodb+srv://guyNodeShop:tkGQBi2GtnHMYZxU@word-quest-db.jdoj9.mongodb.net/?retryWrites=true&w=majority&appName=shop-db')
+.then((result) => {
+    console.log('Connected to Database');
     app.listen(3000)
-});
+})
+.catch(err => console.log(err));
