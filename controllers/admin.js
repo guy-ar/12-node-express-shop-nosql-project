@@ -58,15 +58,15 @@ exports.postAddProduct = (req, res, next) => {
     const updatedDescription = req.body.description;
     const updatedPrice = req.body.price;
     const updatedProdId = req.body.productId;
-    const product = new Product(
-      updatedTitle, 
-      updatedImageUrl, 
-      updatedDescription, 
-      updatedPrice, 
-      updatedProdId,
-      req.user._id
-      );
-    product.save()
+    
+    Product.findById(updatedProdId)
+    .then((product) => {
+      product.title = updatedTitle;
+      product.imageUrl = updatedImageUrl;
+      product.description = updatedDescription;
+      product.price = updatedPrice;
+      return product.save();
+    })
     .then((result) => {
       console.log('Updated Product');
       console.log(result);
@@ -79,7 +79,7 @@ exports.postAddProduct = (req, res, next) => {
     const prodIdToDelete = req.body.productId;
     console.log(prodIdToDelete);
     
-    Product.deleteById(prodIdToDelete)
+    Product.findByIdAndDelete(prodIdToDelete)
       .then(() => {
         console.log('deleted');
         res.redirect('/admin/products');
@@ -91,7 +91,7 @@ exports.postAddProduct = (req, res, next) => {
 exports.getProducts = (req, res, next) => {
 // need to render the template using the view engine
 // we will pass to the template the products in js object
-Product.fetchAll()
+Product.find()
   .then(products => {
     res.render('admin/products', {
         prods: products, 
