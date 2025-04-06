@@ -29,7 +29,6 @@
             </div>
             <% if (editing === 'true') { %>
                 <input type="hidden" name="productId" value="<%= product._id %>">
-                <input type="hidden" name="createdByUserId" value="<%= product.createdByUserId %>">
             <% } %>
             <button class="btn" type="submit"><%= buttonCaption %></button>
         </form>

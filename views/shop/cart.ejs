@@ -1,25 +1,33 @@
 <%- include('../includes/head') %>
+    <link rel="stylesheet" href="/css/cart.css">
+    <link rel="stylesheet" href="/css/forms.css">
     </head>
 
 <body>
     <%- include('../includes/navigation') %>
+    
 
     <main>
         <% if (products.length > 0) { %>
-            <ul>
+            <ul class="cart__item-list">
                 <% for (const product of products) { %>
-                    <li>
-                        <div>
-                            <p><%= product.productData.title %> (<%= product.qty %>)</p>
-                            <p>price: <%= product.productData.price %></p>
-                        </div>
+                    <li class="cart__item">
+                        <H1><%= product.title %> (<%= product.quantity %>)</H1>
+                        <H2>price: <%= product.price %></H2>
+                        
                         <form action="/cart-delete-item" method="POST">
                             <button class="btn" type="submit">Remove</button>
-                            <input type="hidden" name="productId" value="<%= product.productData.id %>">
+                            <input type="hidden" name="productId" value="<%= product._id %>">
                         </form>
                     </li>
                 <% } %>
             </ul>
+            <hr>
+            <div class="centered">
+                <form action="/create-order" method="POST">
+                    <button class="btn" type="submit">Order</button>
+                </form>
+            </div>
 
         <% } else { %>
             <h1>Cart is empty</h1>
