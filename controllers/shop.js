@@ -5,7 +5,7 @@ const Product = require('../models/product');
 exports.getProducts = (req, res, next) => {
     // need to render the template using the view engine
     // we will pass to the template the products in js object
-    Product.fetchAll()
+    Product.find()
     .then(products => {
         res.render('shop/product-list', {
             prods: products, 
@@ -23,7 +23,7 @@ exports.getProducts = (req, res, next) => {
 exports.getIndex = (req, res, next) => {
   // need to render the template using the view engine
   // we will pass to the template the products in js object
-  Product.fetchAll()
+  Product.find()
   .then(products => {
       res.render('shop/index', {
           prods: products, 
@@ -80,14 +80,6 @@ exports.postCartDeleteProduct= (req, res, next) => {
   }).catch(err => console.log(err));
   
 }
-
-// exports.getCheckout = (req, res, next) => {
-//   res.render('shop/checkout', {
-//       //prods: [],
-//       docTitle: 'Checkout',
-//       path: '/checkout'
-//   })
-// }
 
 exports.getOrders = (req, res, next) => {
   req.user.getOrders()
