@@ -5,7 +5,7 @@ const Product = require('../models/product');
 exports.getProducts = (req, res, next) => {
     // need to render the template using the view engine
     // we will pass to the template the products in js object
-    Product.find()
+    Product.fetchAll()
     .then(products => {
         res.render('shop/product-list', {
             prods: products, 
@@ -23,7 +23,7 @@ exports.getProducts = (req, res, next) => {
 exports.getIndex = (req, res, next) => {
   // need to render the template using the view engine
   // we will pass to the template the products in js object
-  Product.find()
+  Product.fetchAll()
   .then(products => {
       res.render('shop/index', {
           prods: products, 
