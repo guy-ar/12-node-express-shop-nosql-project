@@ -20,7 +20,7 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use((req, res, next) => {
     console.log(req.user);
-    User.findById('67f2d0b1d9107d7534def5b8')
+    User.findOne({name: 'system'})
         .then(user => {
             console.log('logged User fetched');
             console.log(user);
