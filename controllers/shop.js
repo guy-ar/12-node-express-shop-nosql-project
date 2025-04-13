@@ -6,7 +6,10 @@ exports.getProducts = (req, res, next) => {
     // need to render the template using the view engine
     // we will pass to the template the products in js object
     Product.find()
+    //.select('title price') // this will only return the title and price, and the id unless it is excluded using -_id
+    //.populate('userId') // tell mongoose to populate the userId data based on tehe relationship
     .then(products => {
+      console.log(products);
         res.render('shop/product-list', {
             prods: products, 
             docTitle: 'All Products',
