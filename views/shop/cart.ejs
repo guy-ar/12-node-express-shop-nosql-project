@@ -12,12 +12,12 @@
             <ul class="cart__item-list">
                 <% for (const product of products) { %>
                     <li class="cart__item">
-                        <H1><%= product.title %> (<%= product.quantity %>)</H1>
-                        <H2>price: <%= product.price %></H2>
+                        <H1><%= product.productId.title %> (<%= product.quantity %>)</H1>
+                        <H2>price: <%= product.productId.price %></H2>
                         
                         <form action="/cart-delete-item" method="POST">
                             <button class="btn" type="submit">Remove</button>
-                            <input type="hidden" name="productId" value="<%= product._id %>">
+                            <input type="hidden" name="productId" value="<%= product.productId._id %>">
                         </form>
                     </li>
                 <% } %>
