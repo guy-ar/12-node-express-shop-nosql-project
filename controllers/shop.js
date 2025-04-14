@@ -1,6 +1,6 @@
 
 const Product = require('../models/product');
-//const Cart = require('../models/cart');
+const Order = require('../models/orders');
 
 exports.getProducts = (req, res, next) => {
     // need to render the template using the view engine
@@ -100,8 +100,22 @@ exports.getOrders = (req, res, next) => {
 }
 
 exports.postOrder = (req, res, next) => {
-  
-  req.user.addOrder()
+  req.user.getCart()
+  .then(user => {
+    console.log(user.cart.items);
+    const products = user.cart.items.map(i => {
+      return {quantity: i.quantity, product: {...i.productId._doc }} // in order to use the product object we need to use the spread operator and _doc
+      // _doc is the object that contains the data of the product
+    });
+    const order = new Order({
+      user: {
+        name: req.user.name,
+        userId: req.user
+      },
+      products: products
+    });
+      return order.save();
+    })
     .then(() => {
       res.redirect('/orders');
     })
