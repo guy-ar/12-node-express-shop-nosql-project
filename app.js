@@ -11,6 +11,7 @@ app.set('views', 'views');
 
 const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
+const authRoutes = require('./routes/auth');
 // const errorController = require('./controllers/error');
 const e = require('express');
 // const User = require('./models/user');
@@ -34,6 +35,7 @@ app.use((req, res, next) => {
 })
 app.use('/admin', adminRoutes)
 app.use(shopRoutes)
+app.use(authRoutes)
 
 mongoose.connect('***REMOVED***?appName=shop-db"')
 .then((result) => {
