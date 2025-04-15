@@ -24,7 +24,6 @@ const shopRoutes = require('./routes/shop');
 const authRoutes = require('./routes/auth');
 const errorController = require('./controllers/error');
 
-
 app.use(express.urlencoded({extended: true}));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
@@ -54,6 +53,7 @@ app.use((req, res, next) => {
         })
         .catch(err => console.log(err));
 })
+
 app.use('/admin', adminRoutes)
 app.use(shopRoutes)
 app.use(authRoutes)
