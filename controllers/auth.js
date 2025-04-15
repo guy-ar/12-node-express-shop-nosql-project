@@ -11,7 +11,15 @@ exports.getLogin = (req, res, next) => {
         isAuthenticated: false
     });
 
-}
+};
+
+exports.getSignup = (req, res, next) => {
+  res.render('auth/signup', {
+    path: '/signup',
+    docTitle: 'Signup',
+    isAuthenticated: false
+  });
+};
 
 exports.postLogin = (req, res, next) => {
     // assume login is valid - later on we will validate the login
@@ -31,8 +39,9 @@ exports.postLogin = (req, res, next) => {
         
     })
     .catch(err => console.log(err));
+};
 
-}
+exports.postSignup = (req, res, next) => {};
 
 exports.postLogout = (req, res, next) => {
     // method provided by session package
@@ -41,4 +50,4 @@ exports.postLogout = (req, res, next) => {
         res.redirect('/');
     });
     
-}
+};
