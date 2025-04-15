@@ -91,7 +91,7 @@ exports.postCartDeleteProduct= (req, res, next) => {
 }
 
 exports.getOrders = (req, res, next) => {
-  Order.find({'user.userId': req.session.user._id})
+  Order.find({'user.userId': req.user._id})
   .then(orders => {
     console.log('orders:');
     console.log(orders);
@@ -115,8 +115,8 @@ exports.postOrder = (req, res, next) => {
     });
     const order = new Order({
       user: {
-        name: req.session.user.name,
-        userId: req.session.user
+        name: req.user.name,
+        userId: req.user
       },
       products: products
     });

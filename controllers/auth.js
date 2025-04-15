@@ -16,8 +16,6 @@ exports.getLogin = (req, res, next) => {
 exports.postLogin = (req, res, next) => {
     // assume login is valid - later on we will validate the login
     // set on session flag for login
-    
-    
     User.findOne({name: 'system'})
     .then(user => {
         console.log('logged User fetched');
@@ -25,8 +23,22 @@ exports.postLogin = (req, res, next) => {
         req.session.isLoggedIn = true;
         req.session.user = user; 
         console.log(req.session.user);
-        res.redirect('/');
+        req.session.user.save((err) => {
+            // in order to insure redirect is done after session is updated
+            console.log(err);
+            res.redirect('/');
+        });
+        
     })
     .catch(err => console.log(err));
 
+}
+
+exports.postLogout = (req, res, next) => {
+    // method provided by session package
+    req.session.destroy(err => {
+        console.log(err);
+        res.redirect('/');
+    });
+    
 }

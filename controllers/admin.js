@@ -20,7 +20,7 @@ exports.postAddProduct = (req, res, next) => {
       imageUrl: imageUrl, 
       description: description, 
       price: price,
-      userId: req.session.user // actually we save req.user._userId , but mongoose will do it for us
+      userId: req.user // actually we save req.user._userId , but mongoose will do it for us
     });
     product.save()
       .then((result) => {
