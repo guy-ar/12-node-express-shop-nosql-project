@@ -1,6 +1,7 @@
 const path = require('path');
 
 const express = require('express');
+const session = require('express-session');
 const mongoose = require('mongoose');
 const User = require('./models/user');
 const app = express();
@@ -12,13 +13,22 @@ app.set('views', 'views');
 const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
 const authRoutes = require('./routes/auth');
-// const errorController = require('./controllers/error');
+const errorController = require('./controllers/error');
 const e = require('express');
 // const User = require('./models/user');
+
 
 app.use(express.urlencoded({extended: true}));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
+// flags for session: resave - save the session even if it is not modified; saveUninitialized - save the session even if it is not modified
+// therefore set to false
+// secret need to be a long random string
+app.use(session({    
+    secret: 'my secret',
+    resave: false,
+    saveUninitialized: false
+}))
 app.use((req, res, next) => {
     console.log(req.user);
     User.findOne({name: 'system'})
@@ -36,6 +46,8 @@ app.use((req, res, next) => {
 app.use('/admin', adminRoutes)
 app.use(shopRoutes)
 app.use(authRoutes)
+
+app.use(errorController.getErrorPage);
 
 mongoose.connect('***REMOVED***?appName=shop-db"')
 .then((result) => {
