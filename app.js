@@ -2,9 +2,18 @@ const path = require('path');
 
 const express = require('express');
 const session = require('express-session');
+
+const MONDODB_URI = mongoDbUri
+
+// result of require is a function
+const MongoDBStore = require('connect-mongodb-session')(session);
 const mongoose = require('mongoose');
 const User = require('./models/user');
 const app = express();
+const store = new MongoDBStore({
+    uri: MONDODB_URI,
+    collection: 'sessions'
+})
 
 // express will support ejs as view engine when we wil use the function for dynamic templates
 app.set('view engine', 'ejs');
@@ -14,8 +23,6 @@ const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
 const authRoutes = require('./routes/auth');
 const errorController = require('./controllers/error');
-const e = require('express');
-// const User = require('./models/user');
 
 
 app.use(express.urlencoded({extended: true}));
@@ -27,7 +34,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(session({    
     secret: 'my secret',
     resave: false,
-    saveUninitialized: false
+    saveUninitialized: false,
+    store: store
 }))
 app.use((req, res, next) => {
     console.log(req.user);
@@ -49,7 +57,7 @@ app.use(authRoutes)
 
 app.use(errorController.getErrorPage);
 
-mongoose.connect('***REMOVED***?appName=shop-db"')
+mongoose.connect(MONDODB_URI)
 .then((result) => {
     console.log('Connected to Database');
     User.findOne({name: 'system'})
