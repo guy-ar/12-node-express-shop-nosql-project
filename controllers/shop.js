@@ -15,7 +15,8 @@ exports.getProducts = (req, res, next) => {
             prods: products, 
             docTitle: 'All Products',
             path: '/products',
-            isAuthenticated: req.session.isLoggedIn
+            isAuthenticated: req.session.isLoggedIn,
+            csrfToken: req.csrfToken
           });
       })
       .catch(
@@ -34,7 +35,8 @@ exports.getIndex = (req, res, next) => {
           prods: products, 
           docTitle: 'Shop',
           path: '/',
-          isAuthenticated: req.session.isLoggedIn
+          isAuthenticated: req.session.isLoggedIn,
+          csrfToken: req.csrfToken
         });
   })
   .catch(

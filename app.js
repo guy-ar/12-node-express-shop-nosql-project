@@ -4,16 +4,19 @@ const express = require('express');
 const session = require('express-session');
 
 const MONDODB_URI = mongoDbUri
-
+const mongoose = require('mongoose');
 // result of require is a function
 const MongoDBStore = require('connect-mongodb-session')(session);
-const mongoose = require('mongoose');
+
+
+const csrf = require('csurf');
 const User = require('./models/user');
 const app = express();
 const store = new MongoDBStore({
     uri: MONDODB_URI,
     collection: 'sessions'
 })
+const csrfProtection = csrf();
 
 // express will support ejs as view engine when we wil use the function for dynamic templates
 app.set('view engine', 'ejs');
@@ -36,6 +39,8 @@ app.use(session({
     saveUninitialized: false,
     store: store
 }))
+
+app.use(csrfProtection);
 app.use((req, res, next) => {
     if (!req.session.user) {
         return next();
