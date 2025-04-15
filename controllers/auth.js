@@ -53,18 +53,20 @@ exports.postSignup = (req, res, next) => {
             // later on we will show error message
             return res.redirect('/signup');
         }
-        return bycrypt.hash(password, 12);
-    }).then(hashedPassword => { 
-        const user = new User({
-            password: hashedPassword, 
-            email: email,
-            cart: {items: []}
-        });
-        return user.save(); 
-    }).then(result => {
-        console.log('Created User');
-        res.redirect('/login');
-        
+        return bycrypt.hash(password, 12)
+        .then(hashedPassword => { 
+
+            const user = new User({
+                password: hashedPassword, 
+                email: email,
+                cart: {items: []}
+            });
+            return user.save(); 
+        }).then(result => {
+            console.log('Created User');
+            res.redirect('/login');
+
+        }).catch(err => console.log(err));
     }).catch(err => console.log(err));
 };
 
