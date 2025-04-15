@@ -38,8 +38,11 @@ app.use(session({
     store: store
 }))
 app.use((req, res, next) => {
-    console.log(req.user);
-    User.findOne({name: 'system'})
+    if (!req.session.user) {
+        return next();
+    }
+    // refresh the user model from the database
+    User.findById(req.session.user._id)
         .then(user => {
             console.log('logged User fetched');
             console.log(user);

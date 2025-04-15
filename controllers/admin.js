@@ -5,7 +5,7 @@ exports.getAddProducts = (req, res, next) => {
       path: '/admin/add-product',
       editing: false,
       buttonCaption: 'Add Product',
-      isAuthenticated: req.isLoggedIn
+      isAuthenticated: req.session.isLoggedIn
     });
   };
 
@@ -20,7 +20,7 @@ exports.postAddProduct = (req, res, next) => {
       imageUrl: imageUrl, 
       description: description, 
       price: price,
-      userId: req.user // actually we save req.user._userId , but mongoose will do it for us
+      userId: req.session.user // actually we save req.user._userId , but mongoose will do it for us
     });
     product.save()
       .then((result) => {

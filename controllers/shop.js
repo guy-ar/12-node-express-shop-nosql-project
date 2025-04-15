@@ -1,6 +1,7 @@
 
 const Product = require('../models/product');
 const Order = require('../models/orders');
+const User = require('../models/user');
 
 exports.getProducts = (req, res, next) => {
     // need to render the template using the view engine
@@ -14,7 +15,7 @@ exports.getProducts = (req, res, next) => {
             prods: products, 
             docTitle: 'All Products',
             path: '/products',
-            isAuthenticated: req.isLoggedIn
+            isAuthenticated: req.session.isLoggedIn
           });
       })
       .catch(
@@ -33,7 +34,7 @@ exports.getIndex = (req, res, next) => {
           prods: products, 
           docTitle: 'Shop',
           path: '/',
-          isAuthenticated: req.isLoggedIn
+          isAuthenticated: req.session.isLoggedIn
         });
   })
   .catch(
@@ -47,13 +48,14 @@ exports.getIndex = (req, res, next) => {
 exports.getCart = (req, res, next) => {
   req.user.getCart()
   .then(user => {
+    console.log('cart fetched');
     console.log(user.cart.items);
     const products = user.cart.items;
     res.render('shop/cart', {
       docTitle: 'Cart',
       path: '/cart',
       products: products,
-      isAuthenticated: req.isLoggedIn
+      isAuthenticated: req.session.isLoggedIn
     })
   })
   .catch(
@@ -89,7 +91,7 @@ exports.postCartDeleteProduct= (req, res, next) => {
 }
 
 exports.getOrders = (req, res, next) => {
-  Order.find({'user.userId': req.user._id})
+  Order.find({'user.userId': req.session.user._id})
   .then(orders => {
     console.log('orders:');
     console.log(orders);
@@ -97,7 +99,7 @@ exports.getOrders = (req, res, next) => {
       docTitle: 'Orders',
       path: '/orders',
       orders: orders,
-      isAuthenticated: req.isLoggedIn
+      isAuthenticated: req.session.isLoggedIn
     })
   })
   .catch(err => console.log(err));
@@ -113,8 +115,8 @@ exports.postOrder = (req, res, next) => {
     });
     const order = new Order({
       user: {
-        name: req.user.name,
-        userId: req.user
+        name: req.session.user.name,
+        userId: req.session.user
       },
       products: products
     });
@@ -137,7 +139,7 @@ exports.getProductDetails = (req, res, next) => {
       product: product,
       docTitle: product.title,
       path: '/products',
-      isAuthenticated: req.isLoggedIn
+      isAuthenticated: req.session.isLoggedIn
     })
   }).catch(err => console.log(err));  
 }

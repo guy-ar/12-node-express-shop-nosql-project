@@ -1,3 +1,5 @@
+const User = require('../models/user');
+
 exports.getLogin = (req, res, next) => {
     // console.log("Cookies: ");
     // console.log(req.get('Cookie'));
@@ -14,7 +16,17 @@ exports.getLogin = (req, res, next) => {
 exports.postLogin = (req, res, next) => {
     // assume login is valid - later on we will validate the login
     // set on session flag for login
-    req.session.isLoggedIn = true;
-    res.redirect('/');
+    
+    
+    User.findOne({name: 'system'})
+    .then(user => {
+        console.log('logged User fetched');
+        console.log(user);
+        req.session.isLoggedIn = true;
+        req.session.user = user; 
+        console.log(req.session.user);
+        res.redirect('/');
+    })
+    .catch(err => console.log(err));
 
 }
