@@ -41,7 +41,29 @@ exports.postLogin = (req, res, next) => {
     .catch(err => console.log(err));
 };
 
-exports.postSignup = (req, res, next) => {};
+exports.postSignup = (req, res, next) => {
+    const email = req.body.email;
+    const password = req.body.password;
+    const confirmPassword = req.body.confirmPassword;
+    // check if such user exists
+    User.findOne({email: email}).
+    then(userDoc => {
+        if (userDoc) {
+            // later on we will show error message
+            return res.redirect('/signup');
+        }
+        const user = new User({
+            password: password, 
+            email: email,
+            cart: {items: []}
+        });
+        return user.save(); 
+    }).then(result => {
+        console.log('Created User');
+        res.redirect('/login');
+        
+    }).catch(err => console.log(err));
+};
 
 exports.postLogout = (req, res, next) => {
     // method provided by session package

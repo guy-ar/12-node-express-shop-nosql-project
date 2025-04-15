@@ -63,22 +63,6 @@ app.use(errorController.getErrorPage);
 mongoose.connect(MONDODB_URI)
 .then((result) => {
     console.log('Connected to Database');
-    User.findOne({name: 'system'})
-    .then(user => {
-        if (!user) {
-            return new User({
-                name: 'system', 
-                email: 'doNotReply@examle.com',
-                cart: {
-                    items: []
-                }
-            }).save();
-        }
-    })
-    return User.findOne({name: 'system'});
-})
-.then(user => {
-    console.log(user);
     app.listen(3000)
 })
 .catch(err => console.log(err));
