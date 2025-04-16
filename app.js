@@ -1,12 +1,12 @@
-const path = require('path');
 
+const path = require('path');
 const express = require('express');
 const session = require('express-session');
 const cookieParser = require('cookie-parser');
 const { doubleCsrf } = require('csrf-csrf');
 const flash = require('connect-flash');
+const client = require('./config/secrets');
 
-const MONDODB_URI = mongoDbUri
 const mongoose = require('mongoose');
 // result of require is a function
 const MongoDBStore = require('connect-mongodb-session')(session);
@@ -14,11 +14,11 @@ const MongoDBStore = require('connect-mongodb-session')(session);
 const User = require('./models/user');
 const app = express();
 const store = new MongoDBStore({
-    uri: MONDODB_URI,
+    uri: client.mongoDbConnectionString,
     collection: 'sessions'
 })
 app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser('my-secret'));
+app.use(cookieParser(client.cookieParserSecret));
 
 // express will support ejs as view engine when we wil use the function for dynamic templates
 app.set('view engine', 'ejs');
@@ -36,7 +36,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 // therefore set to false
 // secret need to be a long random string
 app.use(session({    
-    secret: 'my secret',
+    secret: client.sessionSecret,
     resave: false,
     saveUninitialized: false,
     store: store
@@ -44,7 +44,7 @@ app.use(session({
 
 // Configure CSRF protection
 const csrfProtectionConfig = {
-    getSecret: () => 'my-secret-key',
+    getSecret: () => client.csrfSecret,
     cookieName: 'x-csrf-token',
     cookieOptions: {
         httpOnly: true,
@@ -113,7 +113,7 @@ app.use(authRoutes)
 // Error handling middleware
 app.use(errorController.getErrorPage);
 
-mongoose.connect(MONDODB_URI)
+mongoose.connect(client.mongoDbConnectionString)
 .then((result) => {
     console.log('Connected to Database');
     app.listen(3000)
