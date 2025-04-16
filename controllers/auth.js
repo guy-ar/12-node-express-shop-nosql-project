@@ -15,7 +15,8 @@ exports.getSignup = (req, res, next) => {
   res.render('auth/signup', {
     path: '/signup',
     docTitle: 'Signup',
-    isAuthenticated: false
+    isAuthenticated: false,
+    signupError: req.flash('error')[0]
   });
 };
 
@@ -33,6 +34,7 @@ exports.postLogin = (req, res, next) => {
             .then(doMatch => {
                 if (!doMatch) {
                     console.log('Password Mismatched');
+                    req.flash('error', 'Invalid email or password');
                     return res.redirect('/login');
                 } else {
                     console.log('Password Matched');
@@ -45,6 +47,7 @@ exports.postLogin = (req, res, next) => {
                     })
                     .catch(err => {
                         console.log(err)
+                        req.flash('error', 'Generl error occurred');
                         return res.redirect('/login');
                     });
                 }
@@ -66,7 +69,7 @@ exports.postSignup = (req, res, next) => {
     User.findOne({email: email}).
     then(userDoc => {
         if (userDoc) {
-            // later on we will show error message
+            req.flash('error', 'Email already exists');
             return res.redirect('/signup');
         }
         return bycrypt.hash(password, 12)
