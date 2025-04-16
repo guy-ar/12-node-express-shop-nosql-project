@@ -139,3 +139,13 @@ exports.postLogout = (req, res, next) => {
     });
     
 };
+
+exports.getReset = (req, res, next) => {
+    res.render('auth/reset', {
+        path: '/reset',
+        docTitle: 'Reset Password',
+        isAuthenticated: false,
+        loginError: req.flash('error')[0]
+    });
+
+};
