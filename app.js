@@ -4,6 +4,7 @@ const express = require('express');
 const session = require('express-session');
 const cookieParser = require('cookie-parser');
 const { doubleCsrf } = require('csrf-csrf');
+const flash = require('connect-flash');
 
 const MONDODB_URI = mongoDbUri
 const mongoose = require('mongoose');
@@ -58,6 +59,7 @@ const csrfProtectionConfig = {
   
 // Create CSRF protection middleware
 const { generateToken, doubleCsrfProtection } = doubleCsrf(csrfProtectionConfig);
+app.use(flash());
 
 // Debug middleware for incoming requests
 app.use((req, res, next) => {

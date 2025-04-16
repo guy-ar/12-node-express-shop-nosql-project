@@ -5,7 +5,8 @@ exports.getLogin = (req, res, next) => {
     res.render('auth/login', {
         path: '/login',
         docTitle: 'Login',
-        isAuthenticated: false
+        isAuthenticated: false,
+        loginError: req.flash('error')[0]
     });
 
 };
@@ -24,6 +25,7 @@ exports.postLogin = (req, res, next) => {
     User.findOne({email: email})
     .then(user => {
         if (!user) {
+            req.flash('error', 'Invalid email or password');
             return res.redirect('/login');
         } else {
             console.log('logged User fetched');
