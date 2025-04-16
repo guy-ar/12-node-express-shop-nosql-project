@@ -6,7 +6,9 @@ const client = {
   mongoDbConnectionString: process.env.MONGODB_URI,
   csrfSecret: process.env.CSRF_PROTECTION_SECRET,
   cookieParserSecret: process.env.COOKIE_PARSER_SECRET,
-  sessionSecret: process.env.SESSION_SECRET
+  sessionSecret: process.env.SESSION_SECRET,
+  gmailApiKey: process.env.GOOGLE_API_KEY,
+  gmailApiUser: process.env.GOOGLE_API_USER
 
 };
 
