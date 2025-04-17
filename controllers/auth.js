@@ -2,6 +2,7 @@ const User = require('../models/user');
 const bycrypt = require('bcryptjs');
 const client = require('../config/secrets');
 const crypto = require('crypto');
+const { validationResult } = require('express-validator');
 
 //const resend = new Resend(client.resendApiKey);
 const nodemailer = require('nodemailer');
@@ -86,6 +87,17 @@ exports.postSignup = (req, res, next) => {
     const email = req.body.email;
     const password = req.body.password;
     const confirmPassword = req.body.confirmPassword;
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        console.log(errors.array());
+        return res.status(422).render('auth/signup', {
+            path: '/signup',
+            docTitle: 'Signup',
+            isAuthenticated: false,
+            signupError: errors.array()[0].msg,
+        })
+    }
+
     // check if such user exists
     User.findOne({email: email}).
     then(userDoc => {
