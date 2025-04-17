@@ -222,6 +222,7 @@ exports.getChangePassword = (req, res, next) => {
             docTitle: 'Change Password',
             isAuthenticated: false,
             userId: user._id,
+            tokenId: tokenId,
             chgPasswordError: req.flash('error')[0]
         });
         
@@ -230,10 +231,57 @@ exports.getChangePassword = (req, res, next) => {
 };
 
 exports.postChangePassword = (req, res, next) => {
-    // method provided by session package
-    
-        console.log(err);
+    const userId = req.body.userId;
+    const password = req.body.password;
+    const confirmPassword = req.body.confirmPassword;
+    const token = req.body.tokenId;
+    let updatedUser;
+    if (password !== confirmPassword) {
+        req.flash('error', 'Passwords do not match.');
+        return res.redirect(`/reset/${token}`);
+    }
+    User.findOne({_id: userId, resetToken: token, resetTokenExpiration: {$gt: Date.now()}})  
+    .then(user => {
+        if (!user) {
+            req.flash('error', 'Invalid User or Token.');
+            return res.redirect(`/reset/${token}`);
+        }
+        updatedUser = user;
+        return bycrypt.hash(password, 12)
+    }).then(hashedPassword => { 
+        updatedUser.password = hashedPassword;
+        updatedUser.resetToken = undefined;
+        updatedUser.resetTokenExpiration = undefined;
+        return updatedUser.save();
+    })
+    .then(() => {
         res.redirect('/login');
-    
-    
+        // Define email options
+        const mailOptions = {
+            from: client.gmailApiUser,
+            to: updatedUser.email,
+            subject: 'Password Changed',
+            text: 'Your password was changed.',
+            html:
+            `<h1>Password Changed</h1>
+            <p>Your password was changed. You can now log in with your password. </p>
+            <p>Thanks!</p>`
+        };
+
+        // Send the email
+        transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+                if (error.code === 'EAUTH') {
+                    console.error('Authentication failed. Check your username and password.');
+                } else if (error.code === 'ESOCKET') {
+                    console.error('Socket error. This could be related to network or firewall issues.');                        
+                } else if (error.code === 'ETIMEDOUT') {
+                    console.error('Connection timed out. Check your network or try again later.');
+                }
+                return console.log('Error:', error);
+            }
+            console.log('Email sent:', info.response);
+        });
+    })
+    .catch(err => console.log(err));
 };
