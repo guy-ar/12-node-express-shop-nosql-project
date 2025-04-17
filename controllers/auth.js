@@ -28,7 +28,11 @@ exports.getLogin = (req, res, next) => {
         path: '/login',
         docTitle: 'Login',
         isAuthenticated: false,
-        loginError: req.flash('error')[0]
+        loginError: req.flash('error')[0],
+        oldInput: {
+            email: '',
+            password: ''
+        }
     });
 
 };
@@ -38,7 +42,12 @@ exports.getSignup = (req, res, next) => {
     path: '/signup',
     docTitle: 'Signup',
     isAuthenticated: false,
-    signupError: req.flash('error')[0]
+    signupError: req.flash('error')[0],
+    oldInput: {
+      email: '',
+      password: '',
+      confirmPassword: ''
+    }
   });
 };
 
@@ -52,22 +61,47 @@ exports.postLogin = (req, res, next) => {
             path: '/login',
             docTitle: 'Login',
             isAuthenticated: false,
-            loginError: errors.array()[0].msg
+            loginError: errors.array()[0].msg,
+            oldInput: {
+                email: email,
+                password: password
+            }
         });
     }
     User.findOne({email: email})
     .then(user => {
         if (!user) {
-            req.flash('error', 'Invalid email or password');
-            return res.redirect('/login');
+            // req.flash('error', 'Invalid email or password');
+            // return res.redirect('/login')
+            return res.status(422).render('auth/login', {
+                path: '/login',
+                docTitle: 'Login',
+                isAuthenticated: false,
+                loginError: 'Invalid email or password',
+                oldInput: {
+                    email: email,
+                    password: password
+                }
+            });
+            
         } else {
             console.log('logged User fetched');
             bycrypt.compare(password, user.password)
             .then(doMatch => {
                 if (!doMatch) {
                     console.log('Password Mismatched');
-                    req.flash('error', 'Invalid email or password');
-                    return res.redirect('/login');
+                    // req.flash('error', 'Invalid email or password');
+                    // return res.redirect('/login');
+                    return res.status(422).render('auth/login', {
+                        path: '/login',
+                        docTitle: 'Login',
+                        isAuthenticated: false,
+                        loginError: 'Invalid email or password',
+                        oldInput: {
+                            email: email,
+                            password: password
+                        }
+                    });
                 } else {
                     console.log('Password Matched');
                     req.session.isLoggedIn = true;
@@ -105,6 +139,11 @@ exports.postSignup = (req, res, next) => {
             docTitle: 'Signup',
             isAuthenticated: false,
             signupError: errors.array()[0].msg,
+            oldInput: {
+                email: email,
+                password: password,
+                confirmPassword: req.body.confirmPassword
+            }
         })
     }
 
