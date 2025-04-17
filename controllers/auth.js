@@ -124,7 +124,11 @@ exports.postLogin = (req, res, next) => {
             });
         }
     })
-    .catch(err => console.log(err));
+    .catch(err => {
+        const error = new Error(err);
+        error.httpStatusCode = 500;
+        return next(error);
+    });
 };
 
 exports.postSignup = (req, res, next) => {
@@ -183,7 +187,11 @@ exports.postSignup = (req, res, next) => {
             }
             console.log('Email sent:', info.response);
         });
-    }).catch(err => console.log(err));
+    }).catch(err => {
+        const error = new Error(err);
+        error.httpStatusCode = 500;
+        return next(error);
+    });
 };
 
 exports.postLogout = (req, res, next) => {
@@ -258,7 +266,11 @@ exports.postReset = (req, res, next) => {
                 console.log('Email sent:', info.response);
             });
         })
-        .catch(err => console.log(err));
+        .catch(err => {
+            const error = new Error(err);
+            error.httpStatusCode = 500;
+            return next(error);
+        });
     })
 });
 };
@@ -280,7 +292,11 @@ exports.getChangePassword = (req, res, next) => {
             chgPasswordError: req.flash('error')[0]
         });
         
-    }).catch(err => console.log(err));
+    }).catch(err => {
+        const error = new Error(err);
+        error.httpStatusCode = 500;
+        return next(error);
+    });
     
 };
 
@@ -337,5 +353,9 @@ exports.postChangePassword = (req, res, next) => {
             console.log('Email sent:', info.response);
         });
     })
-    .catch(err => console.log(err));
+    .catch(err => {
+        const error = new Error(err);
+        error.httpStatusCode = 500;
+        return next(error);
+    });
 };

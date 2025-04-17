@@ -116,6 +116,17 @@ app.use(authRoutes)
 app.use('/500', errorController.getGeneralErrorPage);
 
 app.use(errorController.getNotFoundErrorPage);
+// error handler - will be triggered when an error is thrown
+app.use((error, req, res, next) => {
+    // res.status(500).render('500', {
+    //     docTitle: 'Error Page',
+    //     path: '',
+    //     errorMessage: error.message
+    // });
+    // for now we will have only one error page
+    console.log(error.message);
+    res.redirect('/500');
+})
 
 mongoose.connect(client.mongoDbConnectionString)
 .then((result) => {
