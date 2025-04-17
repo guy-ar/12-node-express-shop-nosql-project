@@ -13,9 +13,9 @@ router.get('/signup', authController.getSignup);
 
 router.post('/login', 
     [
-        body('email', 'Please enter a valid email').isEmail(),
+        body('email', 'Please enter a valid email').isEmail().normalizeEmail(),
         body('password', 'Password must be at least 5 characters long')
-            .isLength({min: 5})
+            .isLength({min: 5}).trim()
     ],
     authController.postLogin);
 
@@ -23,6 +23,7 @@ router.post('/signup',
     [
         check('email').isEmail()
         .withMessage('Please enter a valid email')
+        .normalizeEmail()
         .custom((value, {req}) => {
             if (value === req.body.password) {
                 throw new Error('Password cannot be the same as email');
@@ -36,7 +37,7 @@ router.post('/signup',
             })           
         }),
         body('password', 'Password must be at least 5 characters long')
-            .isLength({min: 5}),
+            .isLength({min: 5}).trim(),
         body('confirmPassword')
         .custom((value, {req}) => {
             if (value !== req.body.password) {
