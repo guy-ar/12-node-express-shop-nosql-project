@@ -12,7 +12,14 @@ router.get('/signup', authController.getSignup);
 
 router.post('/login', authController.postLogin);
 
-router.post('/signup', check('email').isEmail().withMessage('Please enter a valid email'), authController.postSignup);
+router.post('/signup', check('email').isEmail()
+    .withMessage('Please enter a valid email')
+    .custom((value, {req}) => {
+        if (value === req.body.password) {
+            throw new Error('Password cannot be the same as email');
+        }
+        return true;
+    }), authController.postSignup);
 
 router.post('/logout', authController.postLogout);
 
