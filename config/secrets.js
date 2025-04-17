@@ -8,7 +8,9 @@ const client = {
   cookieParserSecret: process.env.COOKIE_PARSER_SECRET,
   sessionSecret: process.env.SESSION_SECRET,
   gmailApiKey: process.env.GOOGLE_API_KEY,
-  gmailApiUser: process.env.GOOGLE_API_USER
+  gmailApiUser: process.env.GOOGLE_API_USER,
+  serverUrl: process.env.SERVER_URL,
+  serverPort: process.env.SERVER_PORT
 
 };
 

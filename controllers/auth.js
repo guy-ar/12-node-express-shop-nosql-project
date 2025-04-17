@@ -1,6 +1,7 @@
 const User = require('../models/user');
 const bycrypt = require('bcryptjs');
 const client = require('../config/secrets');
+const crypto = require('crypto');
 
 //const resend = new Resend(client.resendApiKey);
 const nodemailer = require('nodemailer');
@@ -144,8 +145,66 @@ exports.getReset = (req, res, next) => {
     res.render('auth/reset', {
         path: '/reset',
         docTitle: 'Reset Password',
-        isAuthenticated: false,
-        loginError: req.flash('error')[0]
+        //isAuthenticated: false,
+        resetError: req.flash('error')[0]
     });
+};
 
+exports.postReset = (req, res, next) => {
+    // generate random bytes by size of 32 bits
+    // it will be send to the user and used to verify the user
+    // later on
+    crypto.randomBytes(32, (err, buffer) => {
+        if (err) {
+            console.log(err);
+            req.flash('error', 'Generl error occurred');
+            return res.redirect('/reset');
+        }
+        const token = buffer.toString('hex');
+        User.findOne({email: req.body.email})
+        .then(user => {
+            if (!user) {
+                req.flash('error', 'No account with that email found.');
+                console.log('No account with that email found.');
+                return res.redirect('/reset');
+            } 
+            user.resetToken = token;
+            user.resetTokenExpiration = Date.now() + 3600000; // 1 hour
+            return user.save()
+        .then(result => {
+            console.log('User saved');
+            res.redirect('/');
+            // Define email options
+            const mailOptions = {
+                from: client.gmailApiUser,
+                to: req.body.email,
+                subject: 'Password Reset',
+                text: 'You requested a password reset. Click this link: http://localhost:3000/reset/' + token,
+                html:
+                `<h1>Password Reset</h1>
+                <p>You requested a password reset. </p>
+                <p>Click this: <a href="${client.serverUrl}:${client.serverPort}/reset/${token}">link</a> to set a new password.
+                </p>
+                <p>This link will expire in 1 hour.</p>
+                <p>Thanks!</p>`
+            };
+
+            // Send the email
+            transporter.sendMail(mailOptions, (error, info) => {
+                if (error) {
+                    if (error.code === 'EAUTH') {
+                        console.error('Authentication failed. Check your username and password.');
+                    } else if (error.code === 'ESOCKET') {
+                        console.error('Socket error. This could be related to network or firewall issues.');                        
+                    } else if (error.code === 'ETIMEDOUT') {
+                        console.error('Connection timed out. Check your network or try again later.');
+                    }
+                    return console.log('Error:', error);
+                }
+                console.log('Email sent:', info.response);
+            });
+        })
+        .catch(err => console.log(err));
+    })
+});
 };
