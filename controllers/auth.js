@@ -208,3 +208,32 @@ exports.postReset = (req, res, next) => {
     })
 });
 };
+
+exports.getChangePassword = (req, res, next) => {
+    const tokenId = req.params.tokenId;
+    User.findOne({resetToken: tokenId, resetTokenExpiration: {$gt: Date.now()}})
+    .then(user => {
+        if (!user) {
+            req.flash('error', 'Invalid or expired token.');
+            return res.redirect('/login');
+        }
+        res.render('auth/change-password', {
+            path: '/change-password',
+            docTitle: 'Change Password',
+            isAuthenticated: false,
+            userId: user._id,
+            chgPasswordError: req.flash('error')[0]
+        });
+        
+    }).catch(err => console.log(err));
+    
+};
+
+exports.postChangePassword = (req, res, next) => {
+    // method provided by session package
+    
+        console.log(err);
+        res.redirect('/login');
+    
+    
+};
