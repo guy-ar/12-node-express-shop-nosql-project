@@ -62,16 +62,19 @@ exports.postEditProducts = (req, res, next) => {
   
   Product.findById(updatedProdId)
   .then((product) => {
+    if (product && product.userId.toString() !== req.user._id.toString()) {
+      // not allowed to edit products that don't belong to the user
+      return res.redirect('/');
+    }
     product.title = updatedTitle;
     product.imageUrl = updatedImageUrl;
     product.description = updatedDescription;
     product.price = updatedPrice;
-    return product.save();
-  })
-  .then((result) => {
-    console.log('Updated Product');
-    console.log(result);
-    res.redirect('/admin/products');
+    return product.save().then((result) => {
+      console.log('Updated Product');
+      console.log(result);
+      res.redirect('/admin/products');
+    });
   })
   .catch(err => console.log(err));
 };
@@ -79,8 +82,9 @@ exports.postEditProducts = (req, res, next) => {
 exports.postDeleteProducts = (req, res, next) => {
   const prodIdToDelete = req.body.productId;
   console.log(prodIdToDelete);
-  
-  Product.findByIdAndDelete(prodIdToDelete)
+  // add protection - delete only products that belong to the user
+  //Product.findByIdAndDelete(prodIdToDelete)
+  Product.deleteOne({ _id: prodIdToDelete, userId: req.user._id })
     .then(() => {
       console.log('deleted');
       res.redirect('/admin/products');
