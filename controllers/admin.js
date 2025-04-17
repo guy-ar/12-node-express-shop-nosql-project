@@ -1,10 +1,5 @@
 const Product = require('../models/product');
 exports.getAddProducts = (req, res, next) => {
-  // verify if the user is logged in - if not redirect to login - not needed anymore
-  // as we have a middleware
-  // if (!req.session.isLoggedIn) {
-  //   return res.redirect('/login');
-  // }
   res.render('admin/edit-product', {
     docTitle: 'Add Product',
     path: '/admin/add-product',
@@ -97,7 +92,7 @@ exports.postDeleteProducts = (req, res, next) => {
 exports.getProducts = (req, res, next) => {
   // need to render the template using the view engine
   // we will pass to the template the products in js object
-  Product.find()
+  Product.find({userId: req.user._id})
   .then(products => {
     res.render('admin/products', {
         prods: products, 
