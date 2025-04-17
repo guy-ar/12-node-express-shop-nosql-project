@@ -15,15 +15,21 @@ router.post('/login', authController.postLogin);
 router.post('/signup', 
     [
         check('email').isEmail()
-        .withMessage('Please enter a valid email')
-        .custom((value, {req}) => {
-            if (value === req.body.password) {
-                throw new Error('Password cannot be the same as email');
-            }
-            return true;
+            .withMessage('Please enter a valid email')
+            .custom((value, {req}) => {
+                if (value === req.body.password) {
+                    throw new Error('Password cannot be the same as email');
+                }
+                return true;
         }),
         body('password', 'Password must be at least 5 characters long')
-        .isLength({min: 5}),
+            .isLength({min: 5}),
+        body('confirmPassword').custom((value, {req}) => {
+            if (value !== req.body.password) {
+                throw new Error('Passwords have to match');
+            }
+            return true;
+        })
     ], authController.postSignup);
 
 router.post('/logout', authController.postLogout);
