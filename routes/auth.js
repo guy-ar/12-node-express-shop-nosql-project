@@ -1,4 +1,5 @@
 const express = require('express');
+const User = require('../models/user');
 //const expValidator = require('express-validator/check');
 // destructuring the package in order to use the check function
 const { check, body } = require('express-validator');
@@ -15,16 +16,23 @@ router.post('/login', authController.postLogin);
 router.post('/signup', 
     [
         check('email').isEmail()
-            .withMessage('Please enter a valid email')
-            .custom((value, {req}) => {
-                if (value === req.body.password) {
-                    throw new Error('Password cannot be the same as email');
+        .withMessage('Please enter a valid email')
+        .custom((value, {req}) => {
+            if (value === req.body.password) {
+                throw new Error('Password cannot be the same as email');
+            }
+            // add async valdation if user already exist
+            return User.findOne({email: value})
+            .then(userDoc => {
+                if (userDoc) {
+                    return Promise.reject('Email already exists');
                 }
-                return true;
+            })           
         }),
         body('password', 'Password must be at least 5 characters long')
             .isLength({min: 5}),
-        body('confirmPassword').custom((value, {req}) => {
+        body('confirmPassword')
+        .custom((value, {req}) => {
             if (value !== req.body.password) {
                 throw new Error('Passwords have to match');
             }

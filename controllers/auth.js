@@ -86,7 +86,7 @@ exports.postLogin = (req, res, next) => {
 exports.postSignup = (req, res, next) => {
     const email = req.body.email;
     const password = req.body.password;
-    const confirmPassword = req.body.confirmPassword;
+    
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         console.log(errors.array());
@@ -98,49 +98,42 @@ exports.postSignup = (req, res, next) => {
         })
     }
 
-    // check if such user exists
-    User.findOne({email: email}).
-    then(userDoc => {
-        if (userDoc) {
-            req.flash('error', 'Email already exists');
-            return res.redirect('/signup');
-        }
-        return bycrypt.hash(password, 12)
-        .then(hashedPassword => { 
+    
+    return bycrypt.hash(password, 12)
+    .then(hashedPassword => { 
 
-            const user = new User({
-                password: hashedPassword, 
-                email: email,
-                cart: {items: []}
-            });
-            return user.save(); 
-        }).then(result => {
-            console.log('Created User');
-            res.redirect('/login');
-            // Define email options
-            const mailOptions = {
-                from: client.gmailApiUser,
-                to: email,
-                subject: 'Welcome!',
-                text: 'Hello! This is a test email sent from Node.js using Nodemailer for signup',
-                html: '<h1>Hello!</h1><p>This is a test email sent from Node.js using Nodemailer for signup.</p>'
-            };
-  
-            // Send the email
-            transporter.sendMail(mailOptions, (error, info) => {
-                if (error) {
-                    if (error.code === 'EAUTH') {
-                        console.error('Authentication failed. Check your username and password.');
-                      } else if (error.code === 'ESOCKET') {
-                        console.error('Socket error. This could be related to network or firewall issues.');
-                      } else if (error.code === 'ETIMEDOUT') {
-                        console.error('Connection timed out. Check your network or try again later.');
-                      }
-                    return console.log('Error:', error);
-                }
-                console.log('Email sent:', info.response);
-            });
-        }).catch(err => console.log(err));
+        const user = new User({
+            password: hashedPassword, 
+            email: email,
+            cart: {items: []}
+        });
+        return user.save(); 
+    }).then(result => {
+        console.log('Created User');
+        res.redirect('/login');
+        // Define email options
+        const mailOptions = {
+            from: client.gmailApiUser,
+            to: email,
+            subject: 'Welcome!',
+            text: 'Hello! This is a test email sent from Node.js using Nodemailer for signup',
+            html: '<h1>Hello!</h1><p>This is a test email sent from Node.js using Nodemailer for signup.</p>'
+        };
+
+        // Send the email
+        transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+                if (error.code === 'EAUTH') {
+                    console.error('Authentication failed. Check your username and password.');
+                    } else if (error.code === 'ESOCKET') {
+                    console.error('Socket error. This could be related to network or firewall issues.');
+                    } else if (error.code === 'ETIMEDOUT') {
+                    console.error('Connection timed out. Check your network or try again later.');
+                    }
+                return console.log('Error:', error);
+            }
+            console.log('Email sent:', info.response);
+        });
     }).catch(err => console.log(err));
 };
 
