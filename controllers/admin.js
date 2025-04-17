@@ -1,4 +1,3 @@
-const product = require('../models/product');
 const Product = require('../models/product');
 const { validationResult} = require('express-validator');
 exports.getAddProducts = (req, res, next) => {
@@ -52,7 +51,10 @@ exports.postAddProduct = (req, res, next) => {
       console.log(result);
       res.redirect('/admin/products');
     })
-    .catch(err => console.log(err));
+    .catch(err => {
+      console.log(err)
+      res.redirect('/500');
+    });
 };
 exports.getEditProducts = (req, res, next) => {
   const editMode = req.query.edit;

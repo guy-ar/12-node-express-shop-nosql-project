@@ -61,14 +61,14 @@ const csrfProtectionConfig = {
 const { generateToken, doubleCsrfProtection } = doubleCsrf(csrfProtectionConfig);
 app.use(flash());
 
-// Debug middleware for incoming requests
-app.use((req, res, next) => {
-    if (req.method !== 'GET' && req.method !== 'HEAD' && req.method !== 'OPTIONS') {
-        console.log("Request method:", req.method);
-        console.log("Request body:", req.body);
-    }
-    next();
-});
+// // Debug middleware for incoming requests
+// app.use((req, res, next) => {
+//     if (req.method !== 'GET' && req.method !== 'HEAD' && req.method !== 'OPTIONS') {
+//         console.log("Request method:", req.method);
+//         console.log("Request body:", req.body);
+//     }
+//     next();
+// });
 
 app.use((req, res, next) => {
     if (!req.session.user) {
@@ -77,15 +77,17 @@ app.use((req, res, next) => {
     // refresh the user model from the database
     User.findById(req.session.user._id)
         .then(user => {
+            if (!user) {
+                return next();
+            }
             console.log('logged User fetched');
-            console.log(user);
-            
+                        
             req.user = user; 
-            console.log(req.user);
-            
             next();
         })
-        .catch(err => console.log(err));
+        .catch(err => {
+            throw new Error(err);
+        });
 })
 
 app.use((req, res, next) => {
@@ -111,7 +113,9 @@ app.use(shopRoutes)
 app.use(authRoutes)
 
 // Error handling middleware
-app.use(errorController.getErrorPage);
+app.use('/500', errorController.getGeneralErrorPage);
+
+app.use(errorController.getNotFoundErrorPage);
 
 mongoose.connect(client.mongoDbConnectionString)
 .then((result) => {
