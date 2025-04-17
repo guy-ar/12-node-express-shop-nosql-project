@@ -3,6 +3,7 @@ const express = require('express');
 
 const adminController = require('../controllers/admin');
 const isAuth = require('../middleware/is-auth');
+const { body } = require('express-validator');
 //const applyCsrfProtection = require('../middleware/csrf-protection');
 
 const router = express.Router();
@@ -13,14 +14,36 @@ router.get('/add-product', isAuth, adminController.getAddProducts
 );
 
 // /admin/add-product => POST
-router.post('/add-product', isAuth, adminController.postAddProduct);
+router.post('/add-product', 
+    [
+        body('title', 'Title must be at least 3 characters long')
+            .trim().isLength({min: 3}),
+        body('imageUrl', 'Image URL must be a valid URL')
+            .trim().isURL(),
+        body('price', 'Price must be a number greater than 0')
+            .isFloat(),
+        body('description', 'Description must be at least 5 characters long')
+            .trim().isLength({min: 5, max: 400})  
+    ],
+    isAuth, adminController.postAddProduct);
 
 // /admin/edit-product => GET
 router.get('/edit-product/:productId', isAuth, adminController.getEditProducts 
 );
 
 // /admin/edit-product => POST
-router.post('/edit-product', isAuth, adminController.postEditProducts 
+router.post('/edit-product',
+    [
+        body('title', 'Title must be at least 3 characters long')
+            .trim().isLength({min: 3}),
+        body('imageUrl', 'Image URL must be a valid URL')
+            .trim().isURL(),
+        body('price', 'Price must be a number greater than 0')
+            .isFloat(),
+        body('description', 'Description must be at least 5 characters long')
+            .trim().isLength({min: 5, max: 400})
+    ],
+    isAuth, adminController.postEditProducts 
 );
 
 // /admin/delete-product => POST

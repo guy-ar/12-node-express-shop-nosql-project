@@ -247,6 +247,10 @@ form {
   background: rgb(255, 176, 176);
   color: red;
 }
+.form-control input.invalid,
+.form-control textarea.invalid {
+  border-color: red;
+}
 
 
 @media (min-width: 768px) {

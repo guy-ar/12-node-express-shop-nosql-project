@@ -1,10 +1,15 @@
+const product = require('../models/product');
 const Product = require('../models/product');
+const { validationResult} = require('express-validator');
 exports.getAddProducts = (req, res, next) => {
   res.render('admin/edit-product', {
     docTitle: 'Add Product',
     path: '/admin/add-product',
     editing: false,
-    buttonCaption: 'Add Product'
+    hasError: false,
+    buttonCaption: 'Add Product',
+    productError: null,
+    validationErrors: []
   });
 };
 
@@ -13,6 +18,26 @@ exports.postAddProduct = (req, res, next) => {
   const imageUrl = req.body.imageUrl;
   const description = req.body.description;
   const price = req.body.price;
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    console.log(errors.array());
+    return res.status(422).render('admin/edit-product', {
+      docTitle: 'Add Product',
+      path: '/admin/add-product',
+      editing: false, 
+      buttonCaption: 'Add Product',
+      hasError: true,
+      productError: errors.array()[0].msg,
+      product: {
+        title: title,
+        imageUrl: imageUrl,
+        description: description,
+        price: price
+      },
+      validationErrors: errors.array()
+    });
+  }
+  
   // as we have now a user with 2 realtios to product we need to use the alias mehtod
   const product = new Product({
     title: title, 
@@ -45,7 +70,10 @@ exports.getEditProducts = (req, res, next) => {
         path: '/admin/edit-product',
         editing: editMode,
         buttonCaption: 'Update Product',
-        product: product
+        product: product,
+        hasError: false,
+        productError: null,
+        validationErrors: []
       });
     
     })
@@ -60,6 +88,26 @@ exports.postEditProducts = (req, res, next) => {
   const updatedPrice = req.body.price;
   const updatedProdId = req.body.productId;
   
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    console.log(errors.array());
+    return res.status(422).render('admin/edit-product', {
+      docTitle: 'Edit Product',
+      path: '/admin/edit-product',
+      editing: true,
+      buttonCaption: 'Update Product',
+      productError: errors.array()[0].msg,
+      hasError: true,
+      product: {
+        title: updatedTitle,
+        imageUrl: updatedImageUrl,
+        description: updatedDescription,
+        price: updatedPrice,
+        productId: updatedProdId
+      },
+      validationErrors: errors.array()
+    });
+  }
   Product.findById(updatedProdId)
   .then((product) => {
     if (product && product.userId.toString() !== req.user._id.toString()) {
