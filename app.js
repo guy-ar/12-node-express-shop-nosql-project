@@ -55,6 +55,7 @@ const errorController = require('./controllers/error');
 app.use(express.urlencoded({extended: true}));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use('/images', express.static(path.join(__dirname, 'images')));
 // flags for session: resave - save the session even if it is not modified; saveUninitialized - save the session even if it is not modified
 // therefore set to false
 // secret need to be a long random string
