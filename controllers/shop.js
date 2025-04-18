@@ -1,16 +1,14 @@
 
 const Product = require('../models/product');
 const Order = require('../models/orders');
-const User = require('../models/user');
 const fs = require('fs');
 const path = require('path');
+const PDFDocument = require('pdfkit'); 
 
 exports.getProducts = (req, res, next) => {
     // need to render the template using the view engine
     // we will pass to the template the products in js object
     Product.find()
-    //.select('title price') // this will only return the title and price, and the id unless it is excluded using -_id
-    //.populate('userId') // tell mongoose to populate the userId data based on tehe relationship
     .then(products => {
       console.log(products);
         res.render('shop/product-list', {
@@ -157,6 +155,25 @@ exports.getInvoice = (req, res, next) => {
     }
     const invoiceName = 'invoice-' + orderId + '.pdf';
     const invoicePath = path.join('data', 'invoices', invoiceName);
+    const pdfDoc = new PDFDocument();
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', 'attachment; filename="' + invoiceName + '"');
+    pdfDoc.pipe(fs.createWriteStream(invoicePath)); // the PDF that we generate will also be stored in the file system
+    pdfDoc.pipe(res);
+       
+    pdfDoc.fontSize(26).text('Invoice', {
+      underline: true
+    });
+    pdfDoc.text('-----------------------');
+    let totalPrice = 0;
+    order.products.forEach(prod => {
+      totalPrice += prod.quantity * prod.product.price;
+      pdfDoc.fontSize(14).text(prod.product.title + ' - ' + prod.quantity + ' x $' + prod.product.price);
+    })
+    pdfDoc.text('-----------------------');
+    pdfDoc.fontSize(20).text('Total Price: $' + totalPrice);
+
+    pdfDoc.end();
     // fs.readFile(invoicePath, (err, data) => {
     //   if (err) {
     //     next(new Error(err));
@@ -167,10 +184,10 @@ exports.getInvoice = (req, res, next) => {
     //   res.setHeader('Content-Disposition', 'attachment; filename="' + invoiceName + '"');
     //   res.send(data);
     // })
-    const fileStream = fs.createReadStream(invoicePath);
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', 'attachment; filename="' + invoiceName + '"');
-    fileStream.pipe(res); // pipe the file stream to the response by chunks
+    // const fileStream = fs.createReadStream(invoicePath);
+    // res.setHeader('Content-Type', 'application/pdf');
+    // res.setHeader('Content-Disposition', 'attachment; filename="' + invoiceName + '"');
+    // fileStream.pipe(res); // pipe the file stream to the response by chunks
   })
   .catch(err => {
     next(new Error(err));
