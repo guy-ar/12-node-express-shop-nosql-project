@@ -18,8 +18,29 @@ const store = new MongoDBStore({
     uri: client.mongoDbConnectionString,
     collection: 'sessions'
 })
+const fileStorage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'images');
+    },
+    filename: (req, file, cb) => {
+        const timestamp = new Date().toISOString().replace(/:/g, '-');
+        cb(null, timestamp + '-' + file.originalname);
+    }
+})
+const fileFilter = (req, file, cb) => {
+    if (file.mimetype === 'image/png' 
+        || file.mimetype === 'image/jpg' 
+        || file.mimetype === 'image/jpeg'
+        || file.mimetype === 'image/webp'
+        || file.mimetype === 'image/gif'
+        || file.mimetype === 'image/bmp') {
+        cb(null, true);
+    } else {
+        cb(null, false);
+    }
+}
 app.use(express.urlencoded({ extended: true }));
-app.use(multer().single('image'));
+app.use(multer({storage: fileStorage, fileFilter: fileFilter } ).single('image'));
 app.use(cookieParser(client.cookieParserSecret));
 
 // express will support ejs as view engine when we wil use the function for dynamic templates

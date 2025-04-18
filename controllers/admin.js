@@ -1,3 +1,4 @@
+const isAuth = require('../middleware/is-auth');
 const Product = require('../models/product');
 const { validationResult} = require('express-validator');
 exports.getAddProducts = (req, res, next) => {
@@ -14,9 +15,25 @@ exports.getAddProducts = (req, res, next) => {
 
 exports.postAddProduct = (req, res, next) => {
   const title = req.body.title;
-  const imageUrl = req.body.imageUrl;
+  const image = req.file;
   const description = req.body.description;
   const price = req.body.price;
+  if (!image) {
+    return res.status(422).render('admin/edit-product', {
+      docTitle: 'Add Product',
+      path: '/admin/add-product',
+      editing: false, 
+      buttonCaption: 'Add Product',
+      hasError: true,
+      productError: 'Attached file is not an image',
+      product: {
+        title: title,
+        description: description,
+        price: price
+      },
+      validationErrors: []
+    });
+  }
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     console.log(errors.array());
@@ -29,14 +46,13 @@ exports.postAddProduct = (req, res, next) => {
       productError: errors.array()[0].msg,
       product: {
         title: title,
-        imageUrl: imageUrl,
         description: description,
         price: price
       },
       validationErrors: errors.array()
     });
   }
-  
+  const imageUrl = image.path;
   // as we have now a user with 2 realtios to product we need to use the alias mehtod
   const product = new Product({
     title: title, 
@@ -86,7 +102,7 @@ exports.getEditProducts = (req, res, next) => {
 
 exports.postEditProducts = (req, res, next) => {
   const updatedTitle = req.body.title;
-  const updatedImageUrl = req.body.imageUrl;
+  const updatedImage = req.file;
   const updatedDescription = req.body.description;
   const updatedPrice = req.body.price;
   const updatedProdId = req.body.productId;
@@ -103,7 +119,6 @@ exports.postEditProducts = (req, res, next) => {
       hasError: true,
       product: {
         title: updatedTitle,
-        imageUrl: updatedImageUrl,
         description: updatedDescription,
         price: updatedPrice,
         productId: updatedProdId
@@ -118,7 +133,9 @@ exports.postEditProducts = (req, res, next) => {
       return res.redirect('/');
     }
     product.title = updatedTitle;
-    product.imageUrl = updatedImageUrl;
+    if (updatedImage) {
+      product.imageUrl = updatedImage.path;
+    }
     product.description = updatedDescription;
     product.price = updatedPrice;
     return product.save().then((result) => {
