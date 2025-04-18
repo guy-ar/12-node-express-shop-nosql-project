@@ -71,6 +71,12 @@ app.use(flash());
 // });
 
 app.use((req, res, next) => {
+    res.locals.isAuthenticated = req.session.isLoggedIn;
+    res.locals.csrfToken = generateToken(req, res);
+    next();
+})
+
+app.use((req, res, next) => {
     if (!req.session.user) {
         return next();
     }
@@ -86,15 +92,12 @@ app.use((req, res, next) => {
             next();
         })
         .catch(err => {
-            throw new Error(err);
+            // inside a-sync function, we need to handle errors manually using next and not throw
+            next(new Error(err));
         });
 })
 
-app.use((req, res, next) => {
-    res.locals.isAuthenticated = req.session.isLoggedIn;
-    res.locals.csrfToken = generateToken(req, res);
-    next();
-})
+
 
 // Add global CSRF protection for all non-GET requests
 app.use(doubleCsrfProtection);
@@ -118,14 +121,14 @@ app.use('/500', errorController.getGeneralErrorPage);
 app.use(errorController.getNotFoundErrorPage);
 // error handler - will be triggered when an error is thrown
 app.use((error, req, res, next) => {
-    // res.status(500).render('500', {
-    //     docTitle: 'Error Page',
-    //     path: '',
-    //     errorMessage: error.message
-    // });
-    // for now we will have only one error page
-    console.log(error.message);
-    res.redirect('/500');
+    // for now we will have only one error page 
+    // we should not redirect - as we might have synch errors that 
+    // will avoid new request to be sent
+    console.log(error);
+    res.status(500).render('500', {
+        docTitle: 'Error Page',
+        path: ''
+    });
 })
 
 mongoose.connect(client.mongoDbConnectionString)

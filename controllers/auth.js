@@ -125,9 +125,7 @@ exports.postLogin = (req, res, next) => {
         }
     })
     .catch(err => {
-        const error = new Error(err);
-        error.httpStatusCode = 500;
-        return next(error);
+        next(new Error(err));
     });
 };
 
@@ -188,9 +186,7 @@ exports.postSignup = (req, res, next) => {
             console.log('Email sent:', info.response);
         });
     }).catch(err => {
-        const error = new Error(err);
-        error.httpStatusCode = 500;
-        return next(error);
+        next(new Error(err));
     });
 };
 
@@ -267,9 +263,7 @@ exports.postReset = (req, res, next) => {
             });
         })
         .catch(err => {
-            const error = new Error(err);
-            error.httpStatusCode = 500;
-            return next(error);
+            next(new Error(err));
         });
     })
 });
@@ -293,9 +287,7 @@ exports.getChangePassword = (req, res, next) => {
         });
         
     }).catch(err => {
-        const error = new Error(err);
-        error.httpStatusCode = 500;
-        return next(error);
+        next(new Error(err));
     });
     
 };
@@ -354,8 +346,6 @@ exports.postChangePassword = (req, res, next) => {
         });
     })
     .catch(err => {
-        const error = new Error(err);
-        error.httpStatusCode = 500;
-        return next(error);
+        next(new Error(err));
     });
 };
