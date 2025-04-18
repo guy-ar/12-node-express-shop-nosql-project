@@ -1,6 +1,8 @@
 const isAuth = require('../middleware/is-auth');
 const Product = require('../models/product');
 const { validationResult} = require('express-validator');
+
+const fileHelper = require('../util/file');
 exports.getAddProducts = (req, res, next) => {
   res.render('admin/edit-product', {
     docTitle: 'Add Product',
@@ -134,6 +136,7 @@ exports.postEditProducts = (req, res, next) => {
     }
     product.title = updatedTitle;
     if (updatedImage) {
+      fileHelper.deleteFile(product.imageUrl); // delete the old image
       product.imageUrl = updatedImage.path;
     }
     product.description = updatedDescription;
@@ -152,17 +155,22 @@ exports.postEditProducts = (req, res, next) => {
 exports.postDeleteProducts = (req, res, next) => {
   const prodIdToDelete = req.body.productId;
   console.log(prodIdToDelete);
-  // add protection - delete only products that belong to the user
-  //Product.findByIdAndDelete(prodIdToDelete)
-  Product.deleteOne({ _id: prodIdToDelete, userId: req.user._id })
-    .then(() => {
-      console.log('deleted');
-      res.redirect('/admin/products');
-    })
-    .catch(err => {
-      next(new Error(err));
-    });
-  
+  // in order to delete the image - need to fetch the imageUrl
+  Product.findById(prodIdToDelete)
+  .then((product) => {
+    if (!product) {
+      return next(new Error('Product not found'));
+    }
+    fileHelper.deleteFile(product.imageUrl);
+    return Product.deleteOne({ _id: prodIdToDelete, userId: req.user._id });
+  })
+  .then(() => {
+    console.log('deleted');
+    res.redirect('/admin/products');
+  })
+  .catch(err => {
+    next(new Error(err));
+  });
 };
   
 exports.getProducts = (req, res, next) => {
