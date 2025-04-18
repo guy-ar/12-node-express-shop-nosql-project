@@ -18,8 +18,8 @@ router.post('/add-product',
     [
         body('title', 'Title must be at least 3 characters long')
             .trim().isLength({min: 3}),
-        body('imageUrl', 'Image URL must be a valid URL')
-            .trim().isURL(),
+        // body('imageUrl', 'Image URL must be a valid URL')
+        //     .trim().isURL(),
         body('price', 'Price must be a number greater than 0')
             .isFloat(),
         body('description', 'Description must be at least 5 characters long')
@@ -36,8 +36,8 @@ router.post('/edit-product',
     [
         body('title', 'Title must be at least 3 characters long')
             .trim().isLength({min: 3}),
-        body('imageUrl', 'Image URL must be a valid URL')
-            .trim().isURL(),
+        // body('imageUrl', 'Image URL must be a valid URL')
+        //     .trim().isURL(),
         body('price', 'Price must be a number greater than 0')
             .isFloat(),
         body('description', 'Description must be at least 5 characters long')

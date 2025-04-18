@@ -6,6 +6,7 @@ const cookieParser = require('cookie-parser');
 const { doubleCsrf } = require('csrf-csrf');
 const flash = require('connect-flash');
 const client = require('./config/secrets');
+const multer = require('multer');
 
 const mongoose = require('mongoose');
 // result of require is a function
@@ -18,6 +19,7 @@ const store = new MongoDBStore({
     collection: 'sessions'
 })
 app.use(express.urlencoded({ extended: true }));
+app.use(multer().single('image'));
 app.use(cookieParser(client.cookieParserSecret));
 
 // express will support ejs as view engine when we wil use the function for dynamic templates
