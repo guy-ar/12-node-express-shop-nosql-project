@@ -157,16 +157,20 @@ exports.getInvoice = (req, res, next) => {
     }
     const invoiceName = 'invoice-' + orderId + '.pdf';
     const invoicePath = path.join('data', 'invoices', invoiceName);
-    fs.readFile(invoicePath, (err, data) => {
-      if (err) {
-        next(new Error(err));
-      }
-      // in order to be bble to open the file in the browser we need to set the header
-      res.setHeader('Content-Type', 'application/pdf');
-      //res.setHeader('Content-Disposition', 'inline; filename="' + invoiceName + '"'); // tell teh browser to serve it as an attachment or inline
-      res.setHeader('Content-Disposition', 'attachment; filename="' + invoiceName + '"');
-      res.send(data);
-    })
+    // fs.readFile(invoicePath, (err, data) => {
+    //   if (err) {
+    //     next(new Error(err));
+    //   }
+    //   // in order to be bble to open the file in the browser we need to set the header
+    //   res.setHeader('Content-Type', 'application/pdf');
+    //   //res.setHeader('Content-Disposition', 'inline; filename="' + invoiceName + '"'); // tell teh browser to serve it as an attachment or inline
+    //   res.setHeader('Content-Disposition', 'attachment; filename="' + invoiceName + '"');
+    //   res.send(data);
+    // })
+    const fileStream = fs.createReadStream(invoicePath);
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', 'attachment; filename="' + invoiceName + '"');
+    fileStream.pipe(res); // pipe the file stream to the response by chunks
   })
   .catch(err => {
     next(new Error(err));
