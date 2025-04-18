@@ -2,6 +2,8 @@
 const Product = require('../models/product');
 const Order = require('../models/orders');
 const User = require('../models/user');
+const fs = require('fs');
+const path = require('path');
 
 exports.getProducts = (req, res, next) => {
     // need to render the template using the view engine
@@ -141,4 +143,20 @@ exports.getProductDetails = (req, res, next) => {
   }).catch(err => {
     next(new Error(err));
   });  
+}
+
+exports.getInvoice = (req, res, next) => {
+  const orderId = req.params.orderId;
+  const invoiceName = 'invoice-' + orderId + '.pdf';
+  const invoicePath = path.join('data', 'invoices', invoiceName);
+  fs.readFile(invoicePath, (err, data) => {
+    if (err) {
+      next(new Error(err));
+    }
+    // in order to be bble to open the file in the browser we need to set the header
+    res.setHeader('Content-Type', 'application/pdf');
+    //res.setHeader('Content-Disposition', 'inline; filename="' + invoiceName + '"'); // tell teh browser to serve it as an attachment or inline
+    res.setHeader('Content-Disposition', 'attachment; filename="' + invoiceName + '"');
+    res.send(data);
+  })
 }
