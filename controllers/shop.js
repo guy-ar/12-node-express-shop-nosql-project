@@ -4,6 +4,7 @@ const Order = require('../models/orders');
 const fs = require('fs');
 const path = require('path');
 const PDFDocument = require('pdfkit'); 
+const ITEMS_PER_PAGE = 2;
 
 exports.getProducts = (req, res, next) => {
     // need to render the template using the view engine
@@ -23,9 +24,11 @@ exports.getProducts = (req, res, next) => {
   }
 
 exports.getIndex = (req, res, next) => {
-  // need to render the template using the view engine
-  // we will pass to the template the products in js object
+  const page = req.query.page;
+  // limit the number of products per page using skip and limit
   Product.find()
+  .skip((page - 1) * ITEMS_PER_PAGE)
+  .limit(ITEMS_PER_PAGE)
   .then(products => {
       res.render('shop/index', {
           prods: products, 
