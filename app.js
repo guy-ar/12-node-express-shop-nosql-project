@@ -78,7 +78,9 @@ const csrfProtectionConfig = {
     },
     size: 64,
     ignoredMethods: ['GET', 'HEAD', 'OPTIONS'],
-    getTokenFromRequest: (req) => req.body._csrf, // Explicitly tell it where to find the token
+    //getTokenFromRequest: (req) => req.body._csrf, // Explicitly tell it where to find the token
+    getTokenFromRequest: (req) => req.headers['csrf-token'] || (req.body && req.body._csrf), // expect the CSRF token in the headers or the body
+
 };
   
 // Create CSRF protection middleware

@@ -48,6 +48,9 @@ router.post('/edit-product',
 
 // /admin/delete-product => POST
 router.post('/delete-product', isAuth, adminController.postDeleteProducts)
+// when we have call from javascript we will use delete http method
+router.delete('/product/:productId', isAuth, adminController.deleteProduct)
+
 
 // /admin/products => GET
 router.get('/products', isAuth, adminController.getProducts);

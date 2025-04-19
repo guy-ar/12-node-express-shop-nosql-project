@@ -172,6 +172,27 @@ exports.postDeleteProducts = (req, res, next) => {
     next(new Error(err));
   });
 };
+
+exports.deleteProduct = (req, res, next) => {
+  const prodIdToDelete = req.params.productId;
+  console.log("prodIdToDelete: ", prodIdToDelete);
+  // in order to delete the image - need to fetch the imageUrl
+  Product.findById(prodIdToDelete)
+  .then((product) => {
+    if (!product) {
+      return next(new Error('Product not found'));
+    }
+    fileHelper.deleteFile(product.imageUrl);
+    return Product.deleteOne({ _id: prodIdToDelete, userId: req.user._id });
+  })
+  .then(() => {
+    console.log('deleted');
+    res.status(200).json({message: 'Product deleted'});
+  })
+  .catch(err => {
+    res.status(500).json({message: 'Deleting product failed'});
+  });
+};
   
 exports.getProducts = (req, res, next) => {
   // need to render the template using the view engine
