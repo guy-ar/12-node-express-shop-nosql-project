@@ -6,24 +6,70 @@ const path = require('path');
 const PDFDocument = require('pdfkit'); 
 const ITEMS_PER_PAGE = 1;
 
-exports.getProducts = (req, res, next) => {
-    // need to render the template using the view engine
-    // we will pass to the template the products in js object
-    Product.find()
-    .then(products => {
-      console.log(products);
-        res.render('shop/product-list', {
-            prods: products, 
-            docTitle: 'All Products',
-            path: '/products'
-          });
-      })
-      .catch(err => {
-        next(new Error(err));
-      });
-  }
+// exports.getProducts = (req, res, next) => {
+//     // need to render the template using the view engine
+//     // we will pass to the template the products in js object
+//     const page = +req.query.page || 1;
+//     console.log("page: " + page);
+//     let totalItems;
+//     // limit the number of products per page using skip and limit
+//     Product.find()
+//     .countDocuments()
+//     .then(numProducts => {
+//       totalItems = numProducts;
+//       return Product.find().skip((page - 1) * ITEMS_PER_PAGE).limit(ITEMS_PER_PAGE);
+//     })
+//     .then(products => {
+//       res.render('shop/product-list', {
+//         prods: products, 
+//         docTitle: 'All Products',
+//         path: '/products',
+//         currentPage: page,
+//         hasNextPage: ITEMS_PER_PAGE * page < totalItems,
+//         hasPreviousPage: page > 1,
+//         nextPage: +page + 1,
+//         previousPage: page - 1,
+//         lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE)
+//       });
+//     })
+//     .catch(err => {
+//       next(new Error(err));
+//     });
+//   }
 
-exports.getIndex = (req, res, next) => {
+// exports.getIndex = (req, res, next) => {
+//   const page = +req.query.page || 1;
+//   console.log("page: " + page);
+//   let totalItems;
+//   // limit the number of products per page using skip and limit
+//   Product.find()
+//   .countDocuments()
+//   .then(numProducts => {
+//     totalItems = numProducts;
+//     return Product.find().skip((page - 1) * ITEMS_PER_PAGE).limit(ITEMS_PER_PAGE);
+//   })
+//   .then(products => {
+//       res.render('shop/index', {
+//           prods: products, 
+//           docTitle: 'Shop',
+//           path: '/',
+//           currentPage: page,
+//           hasNextPage: ITEMS_PER_PAGE * page < totalItems,
+//           hasPreviousPage: page > 1,
+//           nextPage: +page + 1,
+//           previousPage: page - 1,
+//           lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE)
+//         });
+//   })
+//   .catch(err => {
+//     next(new Error(err));
+//   });
+  
+// }
+
+
+
+const paginateProducts = (req, res, next, template, docTitle, path) => {
   const page = +req.query.page || 1;
   console.log("page: " + page);
   let totalItems;
@@ -35,22 +81,29 @@ exports.getIndex = (req, res, next) => {
     return Product.find().skip((page - 1) * ITEMS_PER_PAGE).limit(ITEMS_PER_PAGE);
   })
   .then(products => {
-      res.render('shop/index', {
-          prods: products, 
-          docTitle: 'Shop',
-          path: '/',
-          currentPage: page,
-          hasNextPage: ITEMS_PER_PAGE * page < totalItems,
-          hasPreviousPage: page > 1,
-          nextPage: +page + 1,
-          previousPage: page - 1,
-          lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE)
-        });
+    res.render(template, {
+      prods: products, 
+      docTitle: docTitle,
+      path: path,
+      currentPage: page,
+      hasNextPage: ITEMS_PER_PAGE * page < totalItems,
+      hasPreviousPage: page > 1,
+      nextPage: +page + 1,
+      previousPage: page - 1,
+      lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE)
+    });
   })
   .catch(err => {
     next(new Error(err));
   });
-  
+}
+
+exports.getProducts = (req, res, next) => {
+  paginateProducts(req, res, next, 'shop/product-list', 'All Products', '/products');
+}
+
+exports.getIndex = (req, res, next) => {
+  paginateProducts(req, res, next, 'shop/index', 'Shop', '/');
 }
 
 exports.getCart = (req, res, next) => {
